@@ -16,7 +16,8 @@ let routes = [
     { path: '/profile', component: require('./components/Profile.vue').default }
 ];
 
-let router = new VueRouter({
+const router = new VueRouter({
+    mode: 'history',
     routes
 });
 

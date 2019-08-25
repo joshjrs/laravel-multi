@@ -12,3 +12,8 @@ $fa-font-path: "../webfonts";
 @import "node_modules/@fortawesome/fontawesome-free/scss/fontawesome.scss";
 @import "node_modules/@fortawesome/fontawesome-free/scss/solid.scss";
 @import "node_modules/@fortawesome/fontawesome-free/scss/brands.scss";
+
+.router-link-active {
+    background-color: #3f51b5;
+    color: #fff !important;
+}
