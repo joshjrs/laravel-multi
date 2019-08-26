@@ -19,15 +19,17 @@
                                     <th>Name</th>
                                     <th>Email</th>
                                     <th>Type</th>
+                                    <th>Registered At</th>
                                     <th>Modify</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>175</td>
-                                    <td>Mikes Dazo</td>
-                                    <td>11-7-2014</td>
-                                    <td><span class="tag tag-danger">Denied</span></td>
+                                <tr v-for="user in users" :key="user.id">
+                                    <td>{{ user.id }}</td>
+                                    <td>{{ user.name }}</td>
+                                    <td>{{ user.email }}</td>
+                                    <td>{{ user.type }}</td>
+                                    <td>{{ user.created_at }}</td>
                                     <td>
                                         <a href="#">
                                             <i class="fa fa-edit blue"></i>
@@ -99,6 +101,7 @@
     export default {
         data() {
             return {
+                users: {},
                 form: new Form({
                     name: '',
                     email: '',
@@ -110,12 +113,15 @@
             }
         },
         methods: {
+            loadUsers() {
+                axios.get("api/user").then(({ data }) => (this.users = data.data));
+            },
             createUser() {
                 this.form.post('api/user');
             }
         },
-        mounted() {
-            console.log('Component mounted.')
+        created() {
+            this.loadUsers();
         }
     }
 </script>
