@@ -35,7 +35,7 @@
                                             <i class="fa fa-edit blue"></i>
                                         </a>
                                         |
-                                        <a href="#">
+                                        <a href="#" @click="deleteUser(user.id)">
                                             <i class="fa fa-trash red"></i>
                                         </a>
                                     </td>
@@ -119,16 +119,48 @@ import { setInterval } from 'timers';
             },
             createUser() {
                 this.$Progress.start();
-                this.form.post('api/user');
-                Fire.$emit('AfterCreate');
-                $('#addNew').modal('hide');
+                this.form.post('api/user')
+                    .then(() => {
+                        Fire.$emit('AfterCreate');
+                        $('#addNew').modal('hide');
 
-                toast.fire({
-                    type: 'success',
-                    title: 'Created successfully',
+                        toast.fire({
+                            type: 'success',
+                            title: 'Created successfully',
+                        });
+                        this.$Progress.finish();
+                    })
+                    .catch(() => {
+                        
+                    });
+            },
+            deleteUser(id) {
+                swal.fire({
+                    title: 'Are you sure?',
+                    text: "You won't be able to revert this!",
+                    type: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                    //send request to server
+                    if (result.value) {
+                        this.form.delete('api/user/' + id)
+                            .then(() => {
+                                swal.fire(
+                                    'Deleted!',
+                                    'Your file has been deleted.',
+                                    'success'
+                                );
+                                Fire.$emit('AfterCreate');
+                            })
+                            .catch(() => {
+                                swal.fire("Failed!", "There was something wrong.", "warning");
+                            });
+                    }
                 });
-                this.$Progress.finish();
-            }
+            },
         },
         created() {
             this.loadUsers();
