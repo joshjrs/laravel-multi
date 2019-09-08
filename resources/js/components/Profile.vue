@@ -15,7 +15,7 @@
                         <h5 class="widget-user-desc">Web Designer</h5>
                     </div>
                     <div class="widget-user-image">
-                        <img class="img-circle" src="" alt="User Avatar">
+                        <img class="img-circle" :src="getProfilePhoto()" alt="User Avatar">
                     </div>
                     <div class="card-footer">
                         <div class="row">
@@ -71,7 +71,7 @@
                                     <div class="form-group">
                                         <label for="inputName" class="col-sm-2 control-label">Name</label>
                                         <div class="col-sm-12">
-                                            <input type="" v-model="form.name" class="form-control" id="inputName" placeholder="Name" :class="{ 'is-invalid': form.errors.has('name') }">
+                                            <input type="text" v-model="form.name" class="form-control" id="inputName" placeholder="Name" :class="{ 'is-invalid': form.errors.has('name') }">
                                             <has-error :form="form" field="name"></has-error>
                                         </div>
                                     </div>
@@ -96,13 +96,13 @@
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label for="password" class="col-sm-12 control-label">Passport (leave empty if not changing)</label>
+                                        <label for="password" class="col-sm-12 control-label">Password (leave empty if not changing)</label>
                                         <div class="col-sm-12">
                                             <input type="password"
                                                 v-model="form.password"
                                                 class="form-control"
                                                 id="password"
-                                                placeholder="Passport"
+                                                placeholder="Password"
                                                 :class="{ 'is-invalid': form.errors.has('password') }"
                                             >
                                             <has-error :form="form" field="password"></has-error>
@@ -146,27 +146,44 @@
             console.log('Component mounted.')
         },
         methods: {
+            getProfilePhoto() {
+                 let photo = (this.form.photo.length > 200) ? this.form.photo : "img/profile/" + this.form.photo;
+                return photo;
+            },
             updateInfo() {
+                this.$Progress.start();
                 this.form.put('api/profile')
                     .then(() => {
-
+                        Fire.$emit('AfterUpdate');
+                        this.$Progress.finish();
                     })
                     .catch(() => {
-                        
+                        this.$Progress.fail();
                     });
             },
             updateProfile(e) {
                 let file = e.target.files[0];
                 let reader = new FileReader();
-                reader.onloadend = (e) => {
-                    // console.log('RESULT', reader.result)
-                    this.form.photo = reader.result;
+                if (file['size'] < 2111775) {
+                    reader.onloadend = (e) => {
+                        // console.log('RESULT', reader.result)
+                        this.form.photo = reader.result;
+                    }
+                    reader.readAsDataURL(file);
+                } else {
+                    swal.fire({
+                        type: 'error',
+                        title: 'Oops...',
+                        text: 'You are uploading a large file',
+                    });
                 }
-                reader.readAsDataURL(file);
             }
         },
         created() {
             axios.get("api/profile").then(({ data }) => (this.form.fill(data)));
+            Fire.$on('AfterUpdate', () => {
+                axios.get("api/profile").then(({ data }) => (this.form.fill(data)));
+            });
         }
     }
 </script>
